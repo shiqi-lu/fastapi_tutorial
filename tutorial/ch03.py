@@ -1,7 +1,7 @@
 from enum import Enum
 from datetime import date
 from typing import Optional, List
-from fastapi import APIRouter, Path, Query
+from fastapi import APIRouter, Path, Query, Body, Cookie, Header
 
 from pydantic import BaseModel, Field
 
@@ -113,7 +113,7 @@ def city_info(city: CityInfo):
 def mix_city_info(
         name: str,
         city01: CityInfo,
-        city02: CityInfo, # Body 可以是多个
+        city02: CityInfo,  # Body 可以是多个
         confirmed: int = Query(ge=0, description="确诊数", default=0),
         death: int = Query(ge=0, description="死亡数", default=0)
 ):
@@ -122,12 +122,23 @@ def mix_city_info(
     return city01.dict(), city02.dict()
 
 
+@app03.put("/request_body/multiple/parameters")
+def body_multiple_parameters(
+        # 当只有一个 Body 参数时，embed=True 表示请求体参数嵌套
+        # 多个 Body 参数默认就是嵌套的
+        city: CityInfo = Body(..., embed=True),
+        confirmed: int = Query(ge=0, description="确诊数", default=0),
+        death: int = Query(ge=0, description="死亡数", default=0)
+):
+    return city.dict()
+
+
 """Request Body - Nested Models 数据格式嵌套的请求体"""
 
 
 class Data(BaseModel):
-    city: List[CityInfo] = None # 这里就是定义数据格式嵌套的请求体
-    date: date # 额外的数据类型
+    city: List[CityInfo] = None  # 这里就是定义数据格式嵌套的请求体
+    date: date  # 额外的数据类型
     confirmed: int = Field(ge=0, description="确诊数", default=0)
     deaths: int = Field(ge=0, description="死亡数", default=0)
     recovered: int = Field(ge=0, description="痊愈数", default=0)
@@ -136,3 +147,25 @@ class Data(BaseModel):
 @app03.put("request_body/nested")
 def nested_models(data: Data):
     return data
+
+
+"""Cookie 和 Header 参数"""
+
+
+# 要验证需在 postman 中，在 headers 中，key添加 Cookie，value 为cookie_id=9898
+@app03.get("/cookie")
+def cookie(cookie_id: Optional[str] = Cookie(None)):
+    return {"cookie_id": cookie_id}
+
+
+# 注意此处在 Postman 中，header 中的 key 要写成 x-token
+@app03.get("/header")
+def header(user_agent: Optional[str] = Header(None, convert_underscores=True),
+           x_token: List[str] = Header(None, convert_underscores=True)):
+    """
+    有些HTTP代理和服务器是不允许在请求头中带有下划线的，所以Header提供convert_underscores属性让设置
+    :param user_agent: convert_underscores=True 会把 user_agent 变成 user-agent
+    :param x_token: x_token是包含多个值的列表
+    :return:
+    """
+    return {"User-Agent": user_agent, "x_token": x_token}
