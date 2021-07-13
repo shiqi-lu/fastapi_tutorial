@@ -2,6 +2,8 @@ from enum import Enum
 from typing import Optional, List
 from fastapi import APIRouter, Path, Query
 
+from pydantic import BaseModel, Field
+
 app03 = APIRouter()
 
 """Path Parameters and Number Validations 路径参数和数字验证"""
@@ -70,6 +72,52 @@ def type_comversion(param: bool = False):
 def query_params_validate(
         value: str = Query(..., min_length=8, max_length=16,
                            regex="^a"),
-        values: List[str] = Query(["v1, v2"], alias="the Sp name")
+        values: List[str] = Query(["v 1, v2"], alias="the Sp name")
 ):
     return value, values
+
+
+"""Request Body and Fields 请求体和字段"""
+
+
+class CityInfo(BaseModel):
+    # example 是注释，值不会被验证
+    name: str = Field(..., example="Beijing")
+    country: str
+    country_code: str = None
+    country_population: int = Field(default=800, title="人口数量",
+                                    descrition="国家的人口数量", ge=800)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "name": "Shanghal",
+                "country": "China",
+                "country_code": "CN",
+                "country_population": 14000000,
+            }
+        }
+
+
+@app03.post("/request_body/city")
+def city_info(city: CityInfo):
+    print(city.name, city.country)
+    return city.dict()
+
+
+"""Request Body + Path parameters + Query parameters 多参数混合"""
+
+
+@app03.put("/request_body/city/{name}")
+def mix_city_info(
+        name: str,
+        city01: CityInfo,
+        city02: CityInfo, # Body 可以是多个
+        confirmed: int = Query(ge=0, description="确诊数", default=0),
+        death: int = Query(ge=0, description="死亡数", default=0)
+):
+    if name == "Shanghai":
+        return {"Shanghai": {"confirmed": confirmed, "death": death}}
+    return city01.dict(), city02.dict()
+
+
