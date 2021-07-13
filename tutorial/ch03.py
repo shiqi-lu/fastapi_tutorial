@@ -1,4 +1,5 @@
 from enum import Enum
+from datetime import date
 from typing import Optional, List
 from fastapi import APIRouter, Path, Query
 
@@ -121,3 +122,17 @@ def mix_city_info(
     return city01.dict(), city02.dict()
 
 
+"""Request Body - Nested Models 数据格式嵌套的请求体"""
+
+
+class Data(BaseModel):
+    city: List[CityInfo] = None # 这里就是定义数据格式嵌套的请求体
+    date: date # 额外的数据类型
+    confirmed: int = Field(ge=0, description="确诊数", default=0)
+    deaths: int = Field(ge=0, description="死亡数", default=0)
+    recovered: int = Field(ge=0, description="痊愈数", default=0)
+
+
+@app03.put("request_body/nested")
+def nested_models(data: Data):
+    return data
