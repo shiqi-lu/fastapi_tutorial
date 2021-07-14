@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Form
 from pydantic import BaseModel, EmailStr
 
 app04 = APIRouter()
@@ -65,3 +65,11 @@ def status_code():
 @app04.post("/status_attribute", status_code=status.HTTP_200_OK)
 def status_attribte():
     return {"status_code": status.HTTP_200_OK}
+
+
+"""Form Data 表单数据处理"""
+@app04.post("/login")
+def login(username: str = Form(...), password: str = Form(...)):
+    """用Form类需要pip install python-multipart; Form类的元数据和校验方法类似Body/Query/Path/Cookie"""
+    return {"username": username}
+
