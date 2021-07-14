@@ -1,0 +1,1 @@
+ # 与数据库表一一对应的继承 pydantic basemodel 的模型类
