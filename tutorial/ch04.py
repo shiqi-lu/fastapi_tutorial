@@ -100,3 +100,6 @@ async def upload_files(files: List[UploadFile] = File(...)):
         contents = await file.read()
         print(contents)
     return {"filename": files[0].filename, "content_type": files[0].content_type}
+
+
+"""【见run.py】FastAPI项目的静态文件配置"""
