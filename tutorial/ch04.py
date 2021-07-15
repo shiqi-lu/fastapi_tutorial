@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 
-from fastapi import APIRouter, status, Form
+from fastapi import APIRouter, status, Form, File, UploadFile
 from pydantic import BaseModel, EmailStr
 
 app04 = APIRouter()
@@ -68,8 +68,35 @@ def status_attribte():
 
 
 """Form Data 表单数据处理"""
+
+
 @app04.post("/login")
 def login(username: str = Form(...), password: str = Form(...)):
     """用Form类需要pip install python-multipart; Form类的元数据和校验方法类似Body/Query/Path/Cookie"""
     return {"username": username}
 
+
+"""Request Files 单文件、多文件上传及参数详解"""
+
+
+@app04.post("/file")
+async def file_(file: bytes = File(...)):
+    # 如果要上传多个文件 files: List[bytes] = File(...)
+    """使用File类 文件内容会以bytes的形式读入内存 适合于上传小文件"""
+    return {"file_size": len(file)}
+
+
+@app04.post("/upload_files")
+async def upload_files(files: List[UploadFile] = File(...)):
+    """
+        使用UploadFile类的优势:
+        1.文件存储在内存中，使用的内存达到阈值后，将被保存在磁盘中
+        2.适合于图片、视频大文件
+        3.可以获取上传的文件的元数据，如文件名，创建时间等
+        4.有文件对象的异步接口
+        5.上传的文件是Python文件对象，可以使用write(), read(), seek(), close()操作
+    """
+    for file in files:
+        contents = await file.read()
+        print(contents)
+    return {"filename": files[0].filename, "content_type": files[0].content_type}
