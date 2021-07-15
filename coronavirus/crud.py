@@ -29,7 +29,7 @@ def get_data(db: Session, city: str = None,
              skip: int = 0, limit: int = 10):
     if city:
         # 外键关联查询
-        return db.query(models.Data).filter(models.Data.city.has(province=city))
+        return db.query(models.Data).filter(models.Data.city.has(province=city)).all()
     return db.query(models.Data).offset(skip).limit(limit).all()
 
 
