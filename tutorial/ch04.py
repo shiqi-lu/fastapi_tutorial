@@ -103,3 +103,22 @@ async def upload_files(files: List[UploadFile] = File(...)):
 
 
 """【见run.py】FastAPI项目的静态文件配置"""
+
+"""Path Operation Configuration 路径操作配置"""
+
+@app04.post(
+    "/path_operation_configuration",
+    response_model=UserOut,
+    # tags=["path"],
+    description="This is summary",
+    response_description="This is response description",
+    deprecated=True,
+    status_code=status.HTTP_202_ACCEPTED
+)
+async def path_operation(user: UserIn):
+    """
+        Path Operation Configuration 路径操作配置
+        :param user: 用户信息
+        :return: 返回结果
+        """
+    return user.dict()
