@@ -5,7 +5,14 @@ from fastapi.staticfiles import StaticFiles
 from coronavirus import application
 from tutorial import app03, app04, app05, app07
 
-app = FastAPI()
+app = FastAPI(
+    title="FastAPI Tutorial and Coronavirus Tracker API Docs",
+    description='FastAPI教程 新冠病毒疫情跟踪器API接口文档，'
+                '项目代码：https://github.com/shiqi-lu/fastapi_tutorial',
+    version='1.0.0',
+    docs_url='/docs',
+    redoc_url='/redocs',
+)
 
 # mount表示将某个目录下一个完全独立的应用挂载过来，这个不会在API交互文档中显示
 # .mount()不要在分路由APIRouter().mount()调用，模板会报错
