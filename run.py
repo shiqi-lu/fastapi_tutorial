@@ -5,6 +5,10 @@ from fastapi.staticfiles import StaticFiles
 from coronavirus import application
 from tutorial import app03, app04, app05, app07
 
+# from fastapi.exceptions import RequestValidationError
+# from fastapi.responses import PlainTextResponse
+# from starlette.exceptions import HTTPException as StarletteHTTPException
+
 app = FastAPI(
     title="FastAPI Tutorial and Coronavirus Tracker API Docs",
     description='FastAPI教程 新冠病毒疫情跟踪器API接口文档，'
@@ -17,6 +21,23 @@ app = FastAPI(
 # mount表示将某个目录下一个完全独立的应用挂载过来，这个不会在API交互文档中显示
 # .mount()不要在分路由APIRouter().mount()调用，模板会报错
 app.mount(path='/static', app=StaticFiles(directory='./coronavirus/static'), name='static')
+
+
+# # 重写HTTPException异常处理器
+# @app.exception_handler(StarletteHTTPException)
+# async def http_exception_handler(request, exc):
+#     """
+#     :param request: 这个参数不能省
+#     :param exc:
+#     :return:
+#     """
+#     return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+#
+#
+# @app.exception_handler(RequestValidationError)
+# async def validation_exception_handler(request, exc):
+#     return PlainTextResponse(str(exc), status_code=400)
+
 
 app.include_router(app03, prefix='/ch03', tags=['第三章 请求参数和验证'])
 app.include_router(app04, prefix='/ch04', tags=['第四章 响应处理和FastAPI配置'])

@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from fastapi import APIRouter, status, Form, File, UploadFile
+from fastapi import APIRouter, status, Form, File, UploadFile, HTTPException
 from pydantic import BaseModel, EmailStr
 
 app04 = APIRouter()
@@ -106,6 +106,7 @@ async def upload_files(files: List[UploadFile] = File(...)):
 
 """Path Operation Configuration 路径操作配置"""
 
+
 @app04.post(
     "/path_operation_configuration",
     response_model=UserOut,
@@ -122,3 +123,21 @@ async def path_operation(user: UserIn):
         :return: 返回结果
         """
     return user.dict()
+
+
+"""Handling Errors 错误处理"""
+
+
+@app04.get("/http_exception")
+async def http_exception(city: str):
+    if city != "Beijing":
+        raise HTTPException(status_code=404, detail="City not found!",
+                            headers={"X-Error": "Error"})
+    return {"city": city}
+
+
+@app04.get("/http_exception/{city_id}")
+async def override_http_exception(city_id: int):
+    if city_id == 1:
+        raise HTTPException(status_code=418, detail="NONOONONON!!")
+    return {"city_id": city_id}
